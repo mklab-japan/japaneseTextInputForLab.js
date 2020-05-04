@@ -1,4 +1,4 @@
-# japaneseTextInputForLab.js
+# Japanese text input for lab.js
 lab.jsを用いて，心理学実験・調査を行う際に半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。
 
 ## 特徴
@@ -36,3 +36,6 @@ https://wanakana.com/
 ## デモ
 https://mklab-japan.github.io/japaneseTextInputForLab.js/    
 デモは活用例1と同じ設定です。30秒経つと終了し,データが出力されます。
+
+### 引用時の表記
+Masanori Kobayashi (2020). Japanese text input for lab.js. doi: 10.5281/zenodo.3783884
