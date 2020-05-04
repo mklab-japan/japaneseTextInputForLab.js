@@ -94,7 +94,7 @@
       "title": "JapaneseTextInput",
       "_tab": "Parameters",
       "timeout": "${this.parameters.phaseDuration}",
-      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Builder\nhttps://lab.js.org/\n\nInclude WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
+      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nInclude WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
       "_template": true,
       "_collapsed": false
     },
@@ -191,9 +191,9 @@
         }
       ],
       "metadata": {
-        "title": "JapaneseTextInput",
+        "title": "JapaneseTextInputForLab.js",
         "description": "",
-        "repository": "",
+        "repository": "https://github.com/mklab-japan/japaneseTextInputForLab.js",
         "contributors": "Masanori Kobayashi (Yamagata University)"
       }
     }
