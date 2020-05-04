@@ -35,4 +35,4 @@ https://wanakana.com/
 
 ## デモ
 https://mklab-japan.github.io/japaneseTextInputForLab.js/    
-デモは活用例1と同じ設定です。30秒経つと終了します。
+デモは活用例1と同じ設定です。30秒経つと終了し,データが出力されます。
