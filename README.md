@@ -34,5 +34,5 @@ b.手がかり再生などのpromptを変化させたい場合は「template」�
 https://wanakana.com/
 
 ## デモ
-https://mklab-japan.github.io/japaneseTextInputForLab.js/
+https://mklab-japan.github.io/japaneseTextInputForLab.js/    
 デモは活用例1と同じ設定です。30秒経つと終了します。
