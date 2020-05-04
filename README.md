@@ -11,7 +11,7 @@ japaneseTextInputForLab.js.jsonを，lab.js Bulider (https://lab.js.org/) で読
  * convertType：入力された文字の変換先の指定（hiragana→ひらがな入力; katakana→カタカナ入力）
  * phaseDuration：文字入力段階の制限時間
  * trialDuration：個々の試行の制限時間
- * showButton：次へのボタン表示するかどうか(a)
+ * showButton：「次へ」のボタンを表示するかどうか(a)
  * prompt: 教示(b)
 
 
