@@ -38,4 +38,4 @@ https://mklab-japan.github.io/japaneseTextInputForLab.js/
 デモは活用例1と同じ設定です。30秒経つと終了し,データが出力されます。
 
 ### 引用時の表記
-Masanori Kobayashi (2020). Japanese text input for lab.js. doi: 10.5281/zenodo.3783884
+Masanori Kobayashi (2020). Japanese text input for lab.js. doi: [10.5281/zenodo.3783884](https://doi.org/10.5281/zenodo.3783884)
