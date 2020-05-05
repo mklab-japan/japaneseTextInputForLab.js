@@ -1,6 +1,6 @@
 # Japanese text input for lab.js
-lab.jsを用いて，半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです（注：ローマ字入力限定）。心理学実験・調査を行う際に活用してください。
-（jsPsych版：https://github.com/mklab-japan/japaneseTextInputForJsPsych）
+lab.jsを用いて，半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです（注：ローマ字入力限定）。心理学実験・調査を行う際に活用してください。    
+（jsPsych版：https://github.com/mklab-japan/japaneseTextInputForJsPsych)
 
 ## 特徴
 半角入力によってひらがな/カタカナを入力するため，推測変換無効にした上でテキスト入力での反応取得が可能です。記憶の再生課題などで，推測変換の影響をなくした状況で実験を行いたい場合に有用です。
