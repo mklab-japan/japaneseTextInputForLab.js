@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/261060164.svg)](https://zenodo.org/badge/latestdoi/261060164)
 # Japanese text input for lab.js
 lab.jsを用いて，半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです（注：ローマ字入力限定）。心理学実験・調査を行う際に活用してください。    
 （jsPsych版：https://github.com/mklab-japan/japaneseTextInputForJsPsych)
