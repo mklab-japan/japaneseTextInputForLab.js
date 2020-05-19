@@ -9,13 +9,13 @@ const study = lab.util.fromObject({
       "path": undefined
     },
     {
-      "type": "lab.plugins.Download",
-      "filePrefix": "japanesetextinput",
+      "type": "lab.plugins.Transmit",
+      "url": "backend.php",
       "path": undefined
     }
   ],
   "metadata": {
-    "title": "JapaneseTextInput",
+    "title": "memoryExperimetn2020",
     "description": "",
     "repository": "",
     "contributors": "Masanori Kobayashi (Yamagata University)"
@@ -33,7 +33,7 @@ const study = lab.util.fromObject({
       ],
       "sample": {
         "mode": "draw-shuffle",
-        "n": "1000"
+        "n": "100"
       },
       "files": {},
       "responses": {},
@@ -41,17 +41,23 @@ const study = lab.util.fromObject({
         "convertType": "hiragana",
         "phaseDuration": "30000",
         "trialDuration": "Never",
-        "prompt": "キーボードを押すと文字が入力されます。 回答の入力を終えたら，「次ヘ」を押してください。 新しい入力欄が表示されます。",
-        "showButton": true
+        "prompt": "キーボードを押すと文字が入力されます。 回答の入力を終えたら，「Enter」を押すか，「次ヘ」をクリックしてください。 新しい入力欄が表示されます。",
+        "showButton": true,
+        "enterEndsTrial": true
       },
       "messageHandlers": {},
       "title": "JapaneseTextInput",
       "timeout": "${this.parameters.phaseDuration}",
-      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Builder\nhttps:\u002F\u002Flab.js.org\u002F\n\nInclude WanaKana.js \nhttps:\u002F\u002Fwanakana.com\u002F\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
+      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n・enterEndsTrial: trueでEnterを押すと制限時間前でも当該試行を終了\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nInclude WanaKana.js \nhttps:\u002F\u002Fwanakana.com\u002F\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
       "shuffleGroups": [],
       "template": {
         "type": "lab.html.Page",
         "items": [
+          {
+            "required": true,
+            "type": "text",
+            "title": "果物の事例をできるだけ入力してください。"
+          },
           {
             "required": true,
             "type": "text",
@@ -127,6 +133,12 @@ this.options.events['keydown'] = function(e) {
       document.getElementById('inputWindow').style = ' ';
     }
     inputArray.push(e.key);
+  }
+
+  //Enterの場合は終了
+  else if(this.parameters.enterEndsTrial == true && e.key == 'Enter')
+  {
+    this.end();
   }
   //配列を1つにまとめる
   convertText = inputArray.join('');
