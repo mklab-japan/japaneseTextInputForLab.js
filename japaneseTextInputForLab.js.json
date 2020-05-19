@@ -1,10 +1,10 @@
 {
   "components": {
-    "1": {
-      "id": "1",
+    "11": {
+      "id": "11",
       "type": "lab.flow.Loop",
       "children": [
-        "5"
+        "12"
       ],
       "templateParameters": {
         "columns": [
@@ -77,6 +77,13 @@
               "value": "true",
               "type": "boolean"
             }
+          ],
+          [
+            {
+              "name": "enterEndsTrial",
+              "value": "true",
+              "type": "boolean"
+            }
           ]
         ]
       },
@@ -94,12 +101,12 @@
       "title": "JapaneseTextInput",
       "_tab": "Parameters",
       "timeout": "${this.parameters.phaseDuration}",
-      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nInclude WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
-      "_template": true,
+      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n・enterEndsTrial: trueでEnterを押すと制限時間前でも当該試行を終了\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nInclude WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
+      "_template": false,
       "_collapsed": false
     },
-    "5": {
-      "id": "5",
+    "12": {
+      "id": "12",
       "type": "lab.html.Page",
       "items": {
         "rows": [
@@ -158,7 +165,7 @@
             {
               "title": "hiragana input",
               "message": "before:prepare",
-              "code": "let inputArray =[]\nlet text;\n\n//初期カーソルの点滅用のCSSを追加\nconst css = document.createElement('style')\ncss.media = 'screen'\ncss.type = 'text/css'\n\nconst cssKeyframes ='@keyframes blink{ 0% {opacity: 0} 100% {opacity: 1.0}}';\nconst rules = document.createTextNode(cssKeyframes)\ncss.appendChild(rules)\n\ndocument.getElementsByTagName('head')[0].appendChild(css);\n\n//キー入力時\nthis.options.events['keydown'] = function(e) {\n  //点滅をやめる\n  if(inputArray.length <= 0)\n  {\n    document.getElementById('inputWindow').style = ' ';\n  }\n  //削除時\n  if(e.key == 'Backspace' || e.key == 'Delete'){\n      //1文字のみの時はカーソルを表示\n      if(inputArray.length == 1)\n      {\n        inputArray =['|']\n        document.getElementById('inputWindow').style = 'animation: blink 0.5s linear infinite alternate;';\n      }\n      else{\n        inputArray.pop();\n      }\n  }\n\n  //押されたキーが1文字の時\n  else if(e.key.length == 1){\n    //最後まで消していた場合\n    if(inputArray[0] == '|')\n    {\n      inputArray.pop()\n      document.getElementById('inputWindow').style = ' ';\n    }\n    inputArray.push(e.key);\n  }\n  //配列を1つにまとめる\n  convertText = inputArray.join('');\n\n  //アルファベットをひらがな/カタカナに変換\n  if(this.parameters.convertType == 'katakana')\n  {\n    convertText = wanakana.toKatakana(convertText, {customKanaMapping: { n: 'n', nn: 'ン'}});\n  }\n  else if(this.parameters.convertType == 'hiragana')\n  {\n    convertText = wanakana.toHiragana(convertText, {customKanaMapping: { n: 'n', nn: 'ん'}});\n  }\n  //変換したテキストを表示\n  document.getElementById('inputWindow').textContent = convertText;\n  //変換したテキストを反応として保存\n  this.data.response = convertText;\n}"
+              "code": "let inputArray =[]\nlet text;\n\n//初期カーソルの点滅用のCSSを追加\nconst css = document.createElement('style')\ncss.media = 'screen'\ncss.type = 'text/css'\n\nconst cssKeyframes ='@keyframes blink{ 0% {opacity: 0} 100% {opacity: 1.0}}';\nconst rules = document.createTextNode(cssKeyframes)\ncss.appendChild(rules)\n\ndocument.getElementsByTagName('head')[0].appendChild(css);\n\n//キー入力時\nthis.options.events['keydown'] = function(e) {\n  //点滅をやめる\n  if(inputArray.length <= 0)\n  {\n    document.getElementById('inputWindow').style = ' ';\n  }\n  //削除時\n  if(e.key == 'Backspace' || e.key == 'Delete'){\n      //1文字のみの時はカーソルを表示\n      if(inputArray.length == 1)\n      {\n        inputArray =['|']\n        document.getElementById('inputWindow').style = 'animation: blink 0.5s linear infinite alternate;';\n      }\n      else{\n        inputArray.pop();\n      }\n  }\n\n  //押されたキーが1文字の時\n  else if(e.key.length == 1){\n    //最後まで消していた場合\n    if(inputArray[0] == '|')\n    {\n      inputArray.pop()\n      document.getElementById('inputWindow').style = ' ';\n    }\n    inputArray.push(e.key);\n  }\n\n  //Enterの場合は終了\n  else if(this.parameters.enterEndsTrial == true && e.key == 'Enter')\n  {\n    this.end();\n  }\n  //配列を1つにまとめる\n  convertText = inputArray.join('');\n\n  //アルファベットをひらがな/カタカナに変換\n  if(this.parameters.convertType == 'katakana')\n  {\n    convertText = wanakana.toKatakana(convertText, {customKanaMapping: { n: 'n', nn: 'ン'}});\n  }\n  else if(this.parameters.convertType == 'hiragana')\n  {\n    convertText = wanakana.toHiragana(convertText, {customKanaMapping: { n: 'n', nn: 'ん'}});\n  }\n  //変換したテキストを表示\n  document.getElementById('inputWindow').textContent = convertText;\n  //変換したテキストを反応として保存\n  this.data.response = convertText;\n}"
             }
           ]
         ]
@@ -172,7 +179,7 @@
       "title": "root",
       "type": "lab.flow.Sequence",
       "children": [
-        "1"
+        "11"
       ],
       "parameters": {
         "rows": [
@@ -191,9 +198,9 @@
         }
       ],
       "metadata": {
-        "title": "JapaneseTextInputForLab.js",
+        "title": "memoryExperimetn2020",
         "description": "",
-        "repository": "https://github.com/mklab-japan/japaneseTextInputForLab.js",
+        "repository": "",
         "contributors": "Masanori Kobayashi (Yamagata University)"
       }
     }
