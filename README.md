@@ -15,6 +15,7 @@ japaneseTextInputForLab.js.jsonを，lab.js Bulider (https://lab.js.org/) で読
  * trialDuration：個々の試行の制限時間
  * showButton：「次へ」のボタンを表示するかどうか(a)
  * prompt: 教示(b)
+ * enterEndsTrial: Enter入力で当該試行を制限時間前に終了するか（trueで終了; デフォルトはfalse）
 
 
 a.「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了    
@@ -25,11 +26,13 @@ b.手がかり再生などでpromptに試行ごとに変化する刺激（手が
  * phaseDuration = 30000
  * trialDuration = Never
  * showButton = true
+ * enterEndsTrial = true
 
 2. 活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）
  * phaseDuration = 30000
  * showButton = false
  * trialDuration = 5000
+ * enterEndsTrial = false
 
 ## 使用ライブラリ
 ひらがな/カタカナ入力用のライブラリとしてWanaKana.jsを利用しています。    
