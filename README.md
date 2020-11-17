@@ -7,7 +7,8 @@ lab.jsを用いて，半角入力時にひらがなまたはカタカナを画�
 半角入力によってひらがな/カタカナを入力するため，推測変換無効にした上でテキスト入力での反応取得が可能です。記憶の再生課題などで，推測変換の影響をなくした状況で実験を行いたい場合に有用です。
 
 ## 使用方法
-japaneseTextInputForLab.js.jsonを，lab.js Bulider (https://lab.js.org/) で読み込んでください。テンプレートのパラメータを設定することで，色々な実験で用いることができます。
+japaneseTextInputForLab.js.jsonを，lab.js Bulider (https://lab.js.org/) で読み込んでください。テンプレートのパラメータを設定することで，色々な実験で用いることができます。    
+HTML部分でライブラリを読み込んでいるので，コンポーネントとしてImportではなくOpenで利用し，こちらに他の課題をImportしてご利用ください。
 
 ### テンプレートの設定
  * convertType：入力された文字の変換先の指定（hiragana→ひらがな入力; katakana→カタカナ入力）
