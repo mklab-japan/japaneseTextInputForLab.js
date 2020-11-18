@@ -34,6 +34,9 @@ b.手がかり再生などでpromptに試行ごとに変化する刺激（手が
  * showButton = false
  * trialDuration = 5000
  * enterEndsTrial = false
+ 
+## 動作確認画面つき
+japaneseTextInputForLabWithDeviceCheck.js.jsonには，最初に動作確認を行う画面が付属しています。ローマ字でのキーボード入力が実施できるかを確認した上で実験・調査を行いたい場合はこちらをご利用ください。
 
 ## 使用ライブラリ
 ひらがな/カタカナ入力用のライブラリとしてWanaKana.jsを利用しています。    
