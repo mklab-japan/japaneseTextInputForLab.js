@@ -1,0 +1,578 @@
+{
+  "components": {
+    "11": {
+      "id": "11",
+      "type": "lab.flow.Loop",
+      "children": [
+        "12"
+      ],
+      "templateParameters": {
+        "columns": [
+          {
+            "name": "trial",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          [
+            "textInput"
+          ]
+        ]
+      },
+      "sample": {
+        "mode": "draw-shuffle",
+        "n": "1000"
+      },
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "convertType",
+              "value": "hiragana",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "phaseDuration",
+              "value": "30000",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "trialDuration",
+              "value": "Never",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "prompt",
+              "value": "キーボードを押すと文字が入力されます。 回答の入力を終えたら，「次ヘ」を押してください。 新しい入力欄が表示されます。",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "showButton",
+              "value": "true",
+              "type": "boolean"
+            }
+          ],
+          [
+            {
+              "name": "enterEndsTrial",
+              "value": "true",
+              "type": "boolean"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "",
+              "code": ""
+            }
+          ]
+        ]
+      },
+      "title": "JapaneseTextInput",
+      "_tab": "Parameters",
+      "timeout": "${this.parameters.phaseDuration}",
+      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n・enterEndsTrial: trueでEnterを押すと制限時間前でも当該試行を終了\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nUse WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
+      "_template": true,
+      "_collapsed": false,
+      "tardy": true
+    },
+    "12": {
+      "id": "12",
+      "type": "lab.html.Page",
+      "items": {
+        "rows": [
+          [
+            {
+              "required": true,
+              "type": "text",
+              "title": "",
+              "content": "${this.parameters.prompt}"
+            }
+          ],
+          [
+            {
+              "required": true,
+              "type": "html",
+              "content": "<div class=\"w-m alert content-horizontal-center\"><span style = \"animation: blink 0.5s linear infinite alternate;\" id=\"inputWindow\">|</span></div>"
+            }
+          ],
+          [
+            {
+              "required": true,
+              "type": "divider"
+            }
+          ],
+          [
+            {
+              "required": true,
+              "type": "html",
+              "content": "${this.parameters.showButton? '<div class=\"content-horizontal-center\"><button type =\"submit\", form=\"page-form\">次へ</button></div>' : ''}"
+            }
+          ]
+        ]
+      },
+      "scrollTop": true,
+      "submitButtonText": "次へ",
+      "submitButtonPosition": "hidden",
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": []
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "hiragana input",
+              "message": "before:prepare",
+              "code": "let inputArray =[]\nlet text;\n\n//初期カーソルの点滅用のCSSを追加\nconst css = document.createElement('style')\ncss.media = 'screen'\ncss.type = 'text/css'\n\nconst cssKeyframes ='@keyframes blink{ 0% {opacity: 0} 100% {opacity: 1.0}}';\nconst rules = document.createTextNode(cssKeyframes)\ncss.appendChild(rules)\n\ndocument.getElementsByTagName('head')[0].appendChild(css);\n\n//キー入力時\nthis.options.events['keydown'] = function(e) {\n  //点滅をやめる\n  if(inputArray.length <= 0)\n  {\n    document.getElementById('inputWindow').style = ' ';\n  }\n  //削除時\n  if(e.key == 'Backspace' || e.key == 'Delete'){\n      //1文字のみの時はカーソルを表示\n      if(inputArray.length == 1)\n      {\n        inputArray =['|']\n        document.getElementById('inputWindow').style = 'animation: blink 0.5s linear infinite alternate;';\n      }\n      else{\n        inputArray.pop();\n      }\n  }\n\n  //押されたキーが1文字の時\n  else if(e.key.length == 1){\n    //最後まで消していた場合\n    if(inputArray[0] == '|')\n    {\n      inputArray.pop()\n      document.getElementById('inputWindow').style = ' ';\n    }\n    inputArray.push(e.key);\n  }\n\n  //Enterの場合は終了\n  else if(this.parameters.enterEndsTrial == true && e.key == 'Enter')\n  {\n    this.end();\n  }\n  //配列を1つにまとめる\n  convertText = inputArray.join('');\n\n  //アルファベットをひらがな/カタカナに変換\n  if(this.parameters.convertType == 'katakana')\n  {\n    convertText = wanakana.toKatakana(convertText, {customKanaMapping: { n: 'n', nn: 'ン'}});\n  }\n  else if(this.parameters.convertType == 'hiragana')\n  {\n    convertText = wanakana.toHiragana(convertText, {customKanaMapping: { n: 'n', nn: 'ん'}});\n  }\n  //変換したテキストを表示\n  document.getElementById('inputWindow').textContent = convertText;\n  //変換したテキストを反応として保存\n  this.data.response = convertText;\n}"
+            }
+          ]
+        ]
+      },
+      "title": "inputWindow",
+      "_tab": "Scripts",
+      "timeout": "${this.parameters.trialDuration}"
+    },
+    "89": {
+      "id": "89",
+      "type": "lab.flow.Loop",
+      "children": [
+        "90"
+      ],
+      "templateParameters": {
+        "columns": [
+          {
+            "name": "trial",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          [
+            "deviceCheck"
+          ]
+        ]
+      },
+      "sample": {
+        "mode": "draw-shuffle",
+        "n": ""
+      },
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "convertType",
+              "value": "hiragana",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "phaseDuration",
+              "value": "Never",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "trialDuration",
+              "value": "Never",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "prompt",
+              "value": "キーボードを押すと文字が入力されます。 回答の入力を終えたら，「次ヘ」を押してください。 新しい入力欄が表示されます。",
+              "type": "string"
+            }
+          ],
+          [
+            {
+              "name": "showButton",
+              "value": "true",
+              "type": "boolean"
+            }
+          ],
+          [
+            {
+              "name": "enterEndsTrial",
+              "value": "true",
+              "type": "boolean"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "",
+              "code": ""
+            }
+          ]
+        ]
+      },
+      "title": "JapaneseTextInput",
+      "_tab": "Content",
+      "timeout": "${this.parameters.phaseDuration}",
+      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n・enterEndsTrial: trueでEnterを押すと制限時間前でも当該試行を終了\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nUse WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************",
+      "_template": false,
+      "_collapsed": false,
+      "tardy": true
+    },
+    "90": {
+      "id": "90",
+      "type": "lab.html.Page",
+      "items": {
+        "rows": [
+          [
+            {
+              "required": true,
+              "type": "text",
+              "title": "キーボード入力テスト",
+              "content": "<p>本実験ではキーボードでのローマ字入力で文字を入力していただきます。実験にあたって，文字入力が可能かどうかの動作確認を行います。</p>\n<p style = \"font-size: 2vh\">てすと</p>\n<p>↑に表示された単語をキーボードで入力してください。入力し終えたら，「次へ」をクリックしてください。</p>\n<p style = \"font-size: 1vh\">日本語入力をONにしなくてもキーボードを押すと文字が入力されます</p>"
+            }
+          ],
+          [
+            {
+              "required": true,
+              "type": "html",
+              "content": "<div class=\"w-m alert content-horizontal-center\"><span style = \"animation: blink 0.5s linear infinite alternate;\" id=\"inputWindow\">|</span></div>"
+            }
+          ],
+          [
+            {
+              "required": true,
+              "type": "html",
+              "content": "${this.parameters.showButton? '<div class=\"content-horizontal-center\"><button type =\"submit\", form=\"page-form\">次へ</button></div>' : ''}"
+            }
+          ]
+        ]
+      },
+      "scrollTop": true,
+      "submitButtonText": "次へ",
+      "submitButtonPosition": "hidden",
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": []
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "hiragana input",
+              "message": "before:prepare",
+              "code": "let inputArray =[]\nlet text;\n\n//初期カーソルの点滅用のCSSを追加\nconst css = document.createElement('style')\ncss.media = 'screen'\ncss.type = 'text/css'\n\nconst cssKeyframes ='@keyframes blink{ 0% {opacity: 0} 100% {opacity: 1.0}}';\nconst rules = document.createTextNode(cssKeyframes)\ncss.appendChild(rules)\n\ndocument.getElementsByTagName('head')[0].appendChild(css);\n\n//キー入力時\nthis.options.events['keydown'] = function(e) {\n  //点滅をやめる\n  if(inputArray.length <= 0)\n  {\n    document.getElementById('inputWindow').style = ' ';\n  }\n  //削除時\n  if(e.key == 'Backspace' || e.key == 'Delete'){\n      //1文字のみの時はカーソルを表示\n      if(inputArray.length == 1)\n      {\n        inputArray =['|']\n        document.getElementById('inputWindow').style = 'animation: blink 0.5s linear infinite alternate;';\n      }\n      else{\n        inputArray.pop();\n      }\n  }\n\n  //押されたキーが1文字の時\n  else if(e.key.length == 1){\n    //最後まで消していた場合\n    if(inputArray[0] == '|')\n    {\n      inputArray.pop()\n      document.getElementById('inputWindow').style = ' ';\n    }\n    inputArray.push(e.key);\n  }\n\n  //Enterの場合は終了\n  else if(this.parameters.enterEndsTrial == true && e.key == 'Enter')\n  {\n    this.end();\n  }\n  //配列を1つにまとめる\n  convertText = inputArray.join('');\n\n  //アルファベットをひらがな/カタカナに変換\n  if(this.parameters.convertType == 'katakana')\n  {\n    convertText = wanakana.toKatakana(convertText, {customKanaMapping: { n: 'n', nn: 'ン'}});\n  }\n  else if(this.parameters.convertType == 'hiragana')\n  {\n    convertText = wanakana.toHiragana(convertText, {customKanaMapping: { n: 'n', nn: 'ん'}});\n  }\n  //変換したテキストを表示\n  document.getElementById('inputWindow').textContent = convertText;\n  //変換したテキストを反応として保存\n  this.state.response = convertText;\n}"
+            }
+          ]
+        ]
+      },
+      "title": "inputWindow",
+      "_tab": "Content",
+      "timeout": "${this.parameters.trialDuration}"
+    },
+    "91": {
+      "id": "91",
+      "type": "lab.html.Page",
+      "items": {
+        "rows": [
+          [
+            {
+              "type": "text",
+              "title": "動作確認が完了しました！",
+              "content": "「次へ」をクリックして次に進んで下さい。"
+            }
+          ],
+          [
+            {
+              "required": true,
+              "type": "html",
+              "content": "<div class=\"content-horizontal-center\"><button type =\"submit\", form=\"page-form\">次へ</button></div>"
+            }
+          ]
+        ]
+      },
+      "scrollTop": true,
+      "submitButtonText": "Continue →",
+      "submitButtonPosition": "hidden",
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "",
+              "code": ""
+            }
+          ]
+        ]
+      },
+      "title": "pass",
+      "_tab": "Behavior",
+      "skip": false,
+      "skipCondition": "${this.state.response != 'てすと'}",
+      "tardy": true
+    },
+    "92": {
+      "id": "92",
+      "type": "lab.html.Page",
+      "items": {
+        "rows": [
+          [
+            {
+              "type": "text",
+              "title": "動作が確認できませんでした。",
+              "content": "お使いのデバイスでは実験を実施できません。ウィンドウを閉じて終了してください。\n<br>*パソコンの場合はESCキーを押して，フルスクリーンを解除した後，ウィンドウを閉じてください。"
+            }
+          ]
+        ]
+      },
+      "scrollTop": true,
+      "submitButtonText": "Continue →",
+      "submitButtonPosition": "hidden",
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "",
+              "code": ""
+            }
+          ]
+        ]
+      },
+      "title": "reject",
+      "_tab": "Content",
+      "skipCondition": "${this.state.response == \"てすと\"}",
+      "tardy": true
+    },
+    "93": {
+      "id": "93",
+      "type": "lab.flow.Sequence",
+      "children": [
+        "89",
+        "91",
+        "92"
+      ],
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "",
+              "code": ""
+            }
+          ]
+        ]
+      },
+      "title": "deviceCheck",
+      "_collapsed": true,
+      "_tab": "Content"
+    },
+    "root": {
+      "id": "root",
+      "title": "root",
+      "type": "lab.flow.Sequence",
+      "children": [
+        "93",
+        "11"
+      ],
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        ]
+      },
+      "plugins": [
+        {
+          "type": "lab.plugins.Metadata"
+        }
+      ],
+      "metadata": {
+        "title": "JapaneseTextInputForLab.js",
+        "description": "",
+        "repository": "https://github.com/mklab-japan/japaneseTextInputForLab.js",
+        "contributors": "Masanori Kobayashi (Yamagata University)"
+      }
+    }
+  },
+  "version": [
+    20,
+    1,
+    1
+  ],
+  "files": {
+    "files": {
+      "index.html": {
+        "content": "data:text/html,%3C!doctype%20html%3E%0A%3Chtml%3E%0A%3Chead%3E%0A%20%20%3Cmeta%20charset%3D%22utf-8%22%3E%0A%20%20%3Ctitle%3EExperiment%3C%2Ftitle%3E%0A%20%20%3C!--%20viewport%20setup%20--%3E%0A%20%20%3Cmeta%20name%3D%22viewport%22%20content%3D%22width%3Ddevice-width%2C%20initial-scale%3D1%22%3E%0A%20%20%3C!--%20lab.js%20library%20and%20experiment%20code%20--%3E%0A%20%20%3C!--%20import%20wanakana.js%20--%3E%0A%20%20%3Cscript%20src%3D%22https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fwanakana%404.0.2%2Fumd%2Fwanakana.min.js%22%3E%3C%2Fscript%3E%0A%20%20%24%7B%20header%20%7D%0A%3C%2Fhead%3E%0A%3Cbody%3E%0A%20%20%3C!--%20If%20you'd%20rather%20have%20a%20container%20with%20a%20fixed%20width%0A%20%20%20%20%20%20%20and%20variable%20height%2C%20try%20removing%20the%20fullscreen%20class%20below%20--%3E%0A%20%20%3Cdiv%20class%3D%22container%20fullscreen%22%20data-labjs-section%3D%22main%22%3E%0A%20%20%20%20%3Cmain%20class%3D%22content-vertical-center%20content-horizontal-center%22%3E%0A%20%20%20%20%20%20%3Cdiv%3E%0A%20%20%20%20%20%20%20%20%3Ch2%3ELoading%20Experiment%3C%2Fh2%3E%0A%20%20%20%20%20%20%20%20%3Cp%3EThe%20experiment%20is%20loading%20and%20should%20start%20in%20a%20few%20seconds%3C%2Fp%3E%0A%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%3C%2Fmain%3E%0A%20%20%3C%2Fdiv%3E%0A%3C%2Fbody%3E%0A%3C%2Fhtml%3E",
+        "source": "library"
+      },
+      "style.css": {
+        "content": "data:text/css,",
+        "source": "library"
+      }
+    },
+    "bundledFiles": {
+      "lib/lab.js": {
+        "type": "application/javascript"
+      },
+      "lib/lab.js.map": {
+        "type": "text/plain"
+      },
+      "lib/lab.fallback.js": {
+        "type": "application/javascript"
+      },
+      "lib/lab.legacy.js": {
+        "type": "application/javascript"
+      },
+      "lib/lab.legacy.js.map": {
+        "type": "text/plain"
+      },
+      "lib/lab.css": {
+        "type": "text/css"
+      },
+      "lib/loading.svg": {
+        "type": "image/svg+xml"
+      }
+    }
+  }
+}
