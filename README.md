@@ -25,7 +25,7 @@ b.手がかり再生などでpromptに試行ごとに変化する刺激（手が
 ### 活用例
 1. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）
  * phaseDuration = 30000
- * trialDuration = Never
+ * trialDuration = (空欄)
  * showButton = true
  * enterEndsTrial = true
 
