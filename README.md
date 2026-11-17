@@ -37,6 +37,10 @@ WanaKanaの読み込みと点滅カーソルのスタイルは、各入力コン
 - `response` には全回答が改行区切りで記録されます。`responses_json` には、各回答の内容、画面開始からの確定時刻、確定方法が記録されます。
 - 時間切れ時に入力中だった語も保存されます。この回答は、`responses_json` の `method` が `timeout` になります。
 
+### 新版のデモ
+
+新版のデモは、動作チェック，手がかり再生（Single response），自由再生（Multiple response）が含まれています。[新版のデモを開く](https://mklab-japan.github.io/japaneseTextInputForLab.js/newDemo/)
+
 ## 旧版
 
 ### 使用方法
@@ -75,7 +79,7 @@ WanaKanaの読み込みと点滅カーソルのスタイルは、各入力コン
 
 ### 旧版のデモ
 
-旧版のデモは、上記の「30秒の自由再生」と同じ設定です。30秒が経過すると終了し、データが出力されます。[旧版のデモを開く](https://mklab-japan.github.io/japaneseTextInputForLab.js/)
+旧版のデモは、上記の「30秒の自由再生」と同じ設定です。30秒が経過すると終了し、データが出力されます。[旧版のデモを開く](https://mklab-japan.github.io/japaneseTextInputForLab.js/oldDemo/)
 
 ## 使用ライブラリ
 
