@@ -1,0 +1,531 @@
+{
+  "components": {
+    "3": {
+      "id": "3",
+      "type": "lab.flow.Loop",
+      "children": [
+        "4"
+      ],
+      "templateParameters": {
+        "columns": [
+          {
+            "name": "stimulus",
+            "type": "string"
+          },
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          [
+            "り＿＿？",
+            ""
+          ],
+          [
+            "み＿＿？",
+            ""
+          ]
+        ]
+      },
+      "sample": {
+        "mode": "draw-shuffle"
+      },
+      "files": [],
+      "responses": [
+        {
+          "label": "",
+          "event": "",
+          "target": "",
+          "filter": ""
+        }
+      ],
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "type": "string"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "",
+          "code": ""
+        }
+      ],
+      "title": "CueRecall",
+      "_tab": "Content",
+      "_collapsed": true
+    },
+    "4": {
+      "id": "4",
+      "type": "lab.flow.Sequence",
+      "children": [
+        "5"
+      ],
+      "files": [],
+      "responses": [
+        {
+          "label": "",
+          "event": "",
+          "target": "",
+          "filter": ""
+        }
+      ],
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "type": "string"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "",
+          "code": ""
+        }
+      ],
+      "title": "Trial"
+    },
+    "5": {
+      "id": "5",
+      "type": "lab.html.Page",
+      "items": [
+        {
+          "required": true,
+          "type": "html",
+          "content": "<h1 class = \"content-horizontal-center\">${parameters.stimulus || \"\"}</h1>"
+        },
+        {
+          "required": true,
+          "type": "html",
+          "content": "<div id=\"kana-display\" class=\"alert\" tabindex=\"0\"\n  role=\"group\" aria-label=\"回答表示欄\"\n  style=\"max-width:36rem;margin:1rem auto;min-height:2em;font-size:1.5rem;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;\"><span id=\"kana-text\"></span><span id=\"kana-cursor\" aria-hidden=\"true\">｜</span></div>\n<p>${parameters.prompt}</p>"
+        },
+        {
+          "required": true,
+          "type": "divider"
+        },
+        {
+          "required": true,
+          "type": "html",
+          "content": "${(parameters.showButton === true || parameters.showButton === 'true') ? '<div class=\"content-horizontal-center\"><button type=\"submit\">この回答を確定して次へ</button></div>' : ''}"
+        }
+      ],
+      "scrollTop": true,
+      "submitButtonText": "次へ",
+      "submitButtonPosition": "hidden",
+      "files": [],
+      "responses": [],
+      "parameters": [
+        {
+          "name": "convertType",
+          "value": "hiragana",
+          "type": "string"
+        },
+        {
+          "name": "trialDuration",
+          "value": "10000",
+          "type": "string"
+        },
+        {
+          "name": "enterEndsTrial",
+          "value": "true",
+          "type": "boolean"
+        },
+        {
+          "name": "showButton",
+          "value": "true",
+          "type": "boolean"
+        },
+        {
+          "name": "prompt",
+          "value": "回答を1語入力してください。Enterまたはボタンで確定すると、次へ進みます。",
+          "type": "string"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "before:prepare",
+          "code": "// before:prepareで実行。HTML/CSSファイルへの手動設定を不要にする。\n// WanaKana本体はCDNから取得するため、通信は必要。\nconst kanaAssetKey = '__labKanaAssets402';\nif (!document.getElementById('lab-kana-component-style')) {\n  const style = document.createElement('style');\n  style.id = 'lab-kana-component-style';\n  style.textContent = '@keyframes lab-kana-cursor-blink{0%,49%{opacity:1}50%,100%{opacity:0}} #kana-cursor,#recall-cursor{display:inline-block;animation:lab-kana-cursor-blink 1s step-end infinite} #recall-history{font-size:1rem;line-height:1.35} #recall-history li{padding:.1rem 0}';\n  document.head.appendChild(style);\n}\nif (typeof window.wanakana === 'undefined') {\n  if (!window[kanaAssetKey]) {\n    window[kanaAssetKey] = new Promise((resolve, reject) => {\n      const script = document.createElement('script');\n      let settled = false;\n      const finish = error => {\n        if (settled) return;\n        settled = true;\n        clearTimeout(timer);\n        script.onload = script.onerror = null;\n        if (error) {\n          script.remove();\n          reject(error);\n        } else resolve();\n      };\n      const timer = setTimeout(() => finish(new Error('WanaKanaの読み込みがタイムアウトしました。通信環境を確認してください。')), 15000);\n      script.src = 'https://cdn.jsdelivr.net/npm/wanakana@4.0.2/umd/wanakana.min.js';\n      script.async = true;\n      script.onload = () => finish(typeof window.wanakana === 'undefined' ? new Error('WanaKanaを初期化できませんでした') : null);\n      script.onerror = () => finish(new Error('WanaKanaを読み込めません。CDNへの通信を確認してください。'));\n      document.head.appendChild(script);\n    });\n  }\n  try {\n    await window[kanaAssetKey];\n  } catch (error) {\n    delete window[kanaAssetKey]; // 次の読み込みでは再試行できるようにする。\n    throw error;\n  }\n}\n\n\n// before:prepare: 通常のinputやcontenteditableを作らず、キーを直接処理する。\n// OSの予測候補を使わせないため、教示では半角英数モードを指定する。\nconst ms = Number(this.parameters.trialDuration);\nthis.options.timeout = Number.isFinite(ms) && ms > 0 ? ms : null;\nlet text = '';\nconst component = this;\nconst convert = (value, final = false) => {\n  if (typeof wanakana === 'undefined') {\n    throw new Error('WanaKanaが読み込まれていません');\n  }\n  const fn = component.parameters.convertType === 'katakana'\n    ? wanakana.toKatakana : wanakana.toHiragana;\n  return fn(value, { IMEMode: !final });\n};\nconst paint = () => {\n  const display = document.getElementById('kana-text');\n  if (display) display.textContent = text;\n  // CSSアニメーションを再開し、入力直後はカーソルを見える状態にする。\n  const cursor = document.getElementById('kana-cursor');\n  if (cursor) {\n    cursor.style.animation = 'none';\n    void cursor.offsetWidth;\n    cursor.style.animation = '';\n  }\n  component.data.response = text;\n};\nthis._kanaPaint = paint;\nthis._kanaFinalize = () => {\n  text = convert(text, true);\n  paint();\n  return text;\n};\nthis.options.events = this.options.events || {};\nthis.options.events.keydown = function(event) {\n  // OSやブラウザのショートカットを文字として取り込まない。\n  if (event.ctrlKey || event.metaKey || event.altKey) return;\n  if (event.key === 'Enter') {\n    event.preventDefault();\n    if (event.isComposing || event.keyCode === 229 || event.repeat) return;\n    if (this.parameters.enterEndsTrial === true || this.parameters.enterEndsTrial === 'true') {\n      this._kanaFinalize();\n      this.end('enter');\n    }\n    return;\n  }\n  if (event.key === 'Backspace' || event.key === 'Delete') {\n    event.preventDefault();\n    // 既に変換されたかなを保持しているので、見えている末尾の1文字を削除する。\n    text = Array.from(text).slice(0, -1).join('');\n    paint();\n    return;\n  }\n  // IMEの変換途中のキーは収集しない。半角英数モードで回答する。\n  if (event.isComposing || event.keyCode === 229) return;\n  if (event.key.length !== 1 || !/^[a-zA-Z '\\-,.]$/.test(event.key)) return;\n  event.preventDefault();\n  text = convert(text + event.key.toLowerCase());\n  paint();\n};\nthis.data.response = '';\n\nthis.data.response_mode = 'single';"
+        },
+        {
+          "title": "",
+          "message": "run",
+          "code": "if (this._kanaPaint) this._kanaPaint();\nconst display = document.getElementById('kana-display');\nif (display) display.focus();"
+        },
+        {
+          "title": "",
+          "message": "end",
+          "code": "// end: ボタン・Enter・時間切れのすべてで、末尾nなどを確定して保存する。\nconst response = this._kanaFinalize ? this._kanaFinalize() : '';\nthis.data.response = response;\nif (this.parameters.trial === 'deviceCheck') {\n  this.state.device_check_response = response;\n  this.state.device_check_passed = response === 'てすと';\n}\n"
+        },
+        {
+          "title": "試行内の参照を解除",
+          "message": "after:end",
+          "code": "delete this._kanaPaint;\ndelete this._kanaFinalize;"
+        }
+      ],
+      "title": "CuedRecallSingleResponse",
+      "_tab": "Parameters",
+      "tardy": true,
+      "notes": "convertType: hiragana OR katakana→平仮名か片仮名\ntrialDuration: 1試行の制限時間（ミリ秒）。空欄または0は無制限\nconvertType: hiragana / katakana。\nenterEndsTrial: Enterによる確定を許可するか\nshowButton: 確定ボタンを表示するか。\nprompt: 教示。\n\n手がかりはthis.parameters.stimulusのLoopパラメータとして定義してください。"
+    },
+    "89": {
+      "id": "89",
+      "type": "lab.flow.Loop",
+      "children": [
+        "90"
+      ],
+      "templateParameters": {
+        "columns": [
+          {
+            "name": "trial",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          [
+            "deviceCheck"
+          ]
+        ]
+      },
+      "sample": {
+        "mode": "draw-shuffle",
+        "n": 1
+      },
+      "files": [],
+      "responses": [],
+      "parameters": [
+        {
+          "name": "convertType",
+          "value": "hiragana",
+          "type": "string"
+        },
+        {
+          "name": "phaseDuration",
+          "value": "",
+          "type": "string"
+        },
+        {
+          "name": "trialDuration",
+          "value": "",
+          "type": "string"
+        },
+        {
+          "name": "prompt",
+          "value": "キーボードを押すと文字が入力されます。 回答の入力を終えたら，「次ヘ」を押してください。 新しい入力欄が表示されます。",
+          "type": "string"
+        },
+        {
+          "name": "showButton",
+          "value": "true",
+          "type": "boolean"
+        },
+        {
+          "name": "enterEndsTrial",
+          "value": "true",
+          "type": "boolean"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "before:prepare",
+          "code": "const ms = Number(this.parameters.phaseDuration);\nthis.options.timeout = Number.isFinite(ms) && ms > 0 ? ms : null;"
+        }
+      ],
+      "title": "DeviceCheckLoop",
+      "_tab": "Content",
+      "notes": "半角入力時にひらがなまたはカタカナを画面に表示するテンプレートです。\n\n・convertType：入力された文字の変換先の指定\n　　hiragana→ひらがな入力\n   　 katakana→カタカナ入力\n・phaseDuration：文字入力段階の制限時間\n・trialDuration：個々の試行の制限時間\n・showButton：次へのボタン表示するかどうか*\n・prompt: 教示**\n・enterEndsTrial: trueでEnterを押すと制限時間前でも当該試行を終了\n\n*「次へ」ボタンを表示させる場合は，個々の試行制限時間が設定してあっても，押すと当該試行は終了\n**手がかり再生などのpromptを変化させたい場合は「template」のチェックを外し,templateパラメータのprompt（このページの下から2番目）を削除し，「Content」にpromptという名前で変数を追加し，そこに手がかりを入れてください。また，デフォルトで1000試行のループになっているので，適宜変更が必要です。\n\n活用例. 30秒の自由再生（30秒経つまでは「次へ」のボタンを押すと新しい入力が可能）\nphaseDuration = 30000\ntrialDuration = Never\nshowButton = true\n\n活用例. 6試行で各試行5秒の制限時間の手がかり再生（手がかりは別途parametersとしてpromptに設定する必要あり。）\nphaseDuration = 30000\nshowButton = false\ntrialDuration = 5000\n\n**************************************************\nJapanseTextInput.json\nCopyright(c) 2020 Masanori Kobayashi\nReleased under the MIT license\n\nMade by lab.js Bulider\n\nUse WanaKana.js \nhttps://wanakana.com/\nCopyright (c) 2013 WaniKani Community Github\nReleased under the MIT license\n**************************************************\n\n改善版: 実際のinput欄とWanaKana.bindを使用。responseに確定回答を記録。試行時間・全体時間は空欄で無制限。元の自由再生設定（最大1000試行・全体30秒）は維持。動作確認は入力操作の確認であり、PC限定判定ではありません。\nキー入力版: input/contenteditable不使用。半角英数モードで実施。ローマ字キーを直接収集してかなを表示する。編集は末尾の削除のみ。Ctrl/Cmdショートカットや貼り付けは回答へ反映しない。",
+      "_template": false,
+      "_collapsed": false,
+      "tardy": true
+    },
+    "90": {
+      "id": "90",
+      "type": "lab.html.Page",
+      "items": [
+        {
+          "required": true,
+          "type": "text",
+          "title": "キーボード入力テスト",
+          "content": "<p>本実験ではキーボードでのローマ字入力で文字を入力していただきます。実験にあたって，文字入力が可能かどうかの動作確認を行います。</p>\n<p style = \"font-size: 2vh\">てすと</p>\n<p>↑に表示された単語をキーボードで入力してください。入力し終えたら，「次へ」をクリックしてください。</p>\n<p style = \"font-size: 1vh\">日本語入力をONにしなくてもキーボードを押すと文字が入力されます</p>"
+        },
+        {
+          "required": true,
+          "type": "html",
+          "content": "<div id=\"kana-display\" class=\"alert\" tabindex=\"0\"\n  role=\"group\" aria-label=\"回答表示欄\"\n  style=\"max-width:36rem;margin:1rem auto;min-height:2em;font-size:1.5rem;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;\"><span id=\"kana-text\"></span><span id=\"kana-cursor\" aria-hidden=\"true\">｜</span></div>\n<p style=\"text-align:left;\">半角英数モードでローマ字を入力してください。自動でかなを表示します。<br>BackspaceやDeleteで末尾の1文字を消すことができます。</p>"
+        },
+        {
+          "required": true,
+          "type": "html",
+          "content": "${(parameters.showButton === true || parameters.showButton === 'true') ? '<div class=\"content-horizontal-center\"><button type=\"submit\">次へ</button></div>' : ''}"
+        }
+      ],
+      "scrollTop": true,
+      "submitButtonText": "次へ",
+      "submitButtonPosition": "hidden",
+      "files": [],
+      "responses": [],
+      "parameters": [],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "before:prepare",
+          "code": "// before:prepareで実行。HTML/CSSファイルへの手動設定を不要にする。\n// WanaKana本体はCDNから取得するため、通信は必要。\nconst kanaAssetKey = '__labKanaAssets402';\nif (!document.getElementById('lab-kana-component-style')) {\n  const style = document.createElement('style');\n  style.id = 'lab-kana-component-style';\n  style.textContent = '@keyframes lab-kana-cursor-blink{0%,49%{opacity:1}50%,100%{opacity:0}} #kana-cursor,#recall-cursor{display:inline-block;animation:lab-kana-cursor-blink 1s step-end infinite} #recall-history{font-size:1rem;line-height:1.35} #recall-history li{padding:.1rem 0}';\n  document.head.appendChild(style);\n}\nif (typeof window.wanakana === 'undefined') {\n  if (!window[kanaAssetKey]) {\n    window[kanaAssetKey] = new Promise((resolve, reject) => {\n      const script = document.createElement('script');\n      let settled = false;\n      const finish = error => {\n        if (settled) return;\n        settled = true;\n        clearTimeout(timer);\n        script.onload = script.onerror = null;\n        if (error) {\n          script.remove();\n          reject(error);\n        } else resolve();\n      };\n      const timer = setTimeout(() => finish(new Error('WanaKanaの読み込みがタイムアウトしました。通信環境を確認してください。')), 15000);\n      script.src = 'https://cdn.jsdelivr.net/npm/wanakana@4.0.2/umd/wanakana.min.js';\n      script.async = true;\n      script.onload = () => finish(typeof window.wanakana === 'undefined' ? new Error('WanaKanaを初期化できませんでした') : null);\n      script.onerror = () => finish(new Error('WanaKanaを読み込めません。CDNへの通信を確認してください。'));\n      document.head.appendChild(script);\n    });\n  }\n  try {\n    await window[kanaAssetKey];\n  } catch (error) {\n    delete window[kanaAssetKey]; // 次の読み込みでは再試行できるようにする。\n    throw error;\n  }\n}\n\n\n// before:prepare: 通常のinputやcontenteditableを作らず、キーを直接処理する。\n// OSの予測候補を使わせないため、教示では半角英数モードを指定する。\nconst ms = Number(this.parameters.trialDuration);\nthis.options.timeout = Number.isFinite(ms) && ms > 0 ? ms : null;\nlet text = '';\nconst component = this;\nconst convert = (value, final = false) => {\n  if (typeof wanakana === 'undefined') {\n    throw new Error('WanaKanaが読み込まれていません');\n  }\n  const fn = component.parameters.convertType === 'katakana'\n    ? wanakana.toKatakana : wanakana.toHiragana;\n  return fn(value, { IMEMode: !final });\n};\nconst paint = () => {\n  const display = document.getElementById('kana-text');\n  if (display) display.textContent = text;\n  // CSSアニメーションを再開し、入力直後はカーソルを見える状態にする。\n  const cursor = document.getElementById('kana-cursor');\n  if (cursor) {\n    cursor.style.animation = 'none';\n    void cursor.offsetWidth;\n    cursor.style.animation = '';\n  }\n  component.data.response = text;\n};\nthis._kanaPaint = paint;\nthis._kanaFinalize = () => {\n  text = convert(text, true);\n  paint();\n  return text;\n};\nthis.options.events = this.options.events || {};\nthis.options.events.keydown = function(event) {\n  // OSやブラウザのショートカットを文字として取り込まない。\n  if (event.ctrlKey || event.metaKey || event.altKey) return;\n  if (event.key === 'Enter') {\n    event.preventDefault();\n    if (event.isComposing || event.keyCode === 229 || event.repeat) return;\n    if (this.parameters.enterEndsTrial === true || this.parameters.enterEndsTrial === 'true') {\n      this._kanaFinalize();\n      this.end('enter');\n    }\n    return;\n  }\n  if (event.key === 'Backspace' || event.key === 'Delete') {\n    event.preventDefault();\n    // 既に変換されたかなを保持しているので、見えている末尾の1文字を削除する。\n    text = Array.from(text).slice(0, -1).join('');\n    paint();\n    return;\n  }\n  // IMEの変換途中のキーは収集しない。半角英数モードで回答する。\n  if (event.isComposing || event.keyCode === 229) return;\n  if (event.key.length !== 1 || !/^[a-zA-Z '\\-,.]$/.test(event.key)) return;\n  event.preventDefault();\n  text = convert(text + event.key.toLowerCase());\n  paint();\n};\nthis.data.response = '';\n"
+        },
+        {
+          "title": "",
+          "message": "run",
+          "code": "if (this._kanaPaint) this._kanaPaint();\nconst display = document.getElementById('kana-display');\nif (display) display.focus();"
+        },
+        {
+          "title": "save",
+          "message": "end",
+          "code": "// end: ボタン・Enter・時間切れのすべてで、末尾nなどを確定して保存する。\nconst response = this._kanaFinalize ? this._kanaFinalize() : '';\nthis.data.response = response;\nif (this.parameters.trial === 'deviceCheck') {\n  this.state.device_check_response = response;\n  this.state.device_check_passed = response === 'てすと';\n}\n"
+        },
+        {
+          "title": "試行内の参照を解除",
+          "message": "after:end",
+          "code": "delete this._kanaPaint;\ndelete this._kanaFinalize;"
+        }
+      ],
+      "title": "DeviceCheckInput",
+      "_tab": "Scripts",
+      "tardy": true,
+      "notes": "\nこのPageを別studyへコピーして使用できる。CSSは自動追加。WanaKanaはCDNから自動ロードするため通信が必要。ローカルへのライブラリ本体の埋め込みではない。"
+    },
+    "91": {
+      "id": "91",
+      "type": "lab.html.Page",
+      "items": [
+        {
+          "type": "text",
+          "title": "動作確認が完了しました！",
+          "content": "「次へ」をクリックして次に進んで下さい。"
+        },
+        {
+          "required": true,
+          "type": "html",
+          "content": "<div class=\"content-horizontal-center\"><button type =\"submit\", form=\"page-form\">次へ</button></div>"
+        }
+      ],
+      "scrollTop": true,
+      "submitButtonText": "Continue →",
+      "submitButtonPosition": "hidden",
+      "files": [],
+      "responses": [],
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "type": "string"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "",
+          "code": ""
+        }
+      ],
+      "title": "pass",
+      "_tab": "Content",
+      "skip": false,
+      "skipCondition": "${state.device_check_passed !== true}",
+      "tardy": true
+    },
+    "92": {
+      "id": "92",
+      "type": "lab.html.Page",
+      "items": [
+        {
+          "type": "text",
+          "title": "動作が確認できませんでした。",
+          "content": "お使いのデバイスでは実験を実施できません。ウィンドウを閉じて終了してください。\n<br>*パソコンの場合はESCキーを押して，フルスクリーンを解除した後，ウィンドウを閉じてください。"
+        }
+      ],
+      "scrollTop": true,
+      "submitButtonText": "Continue →",
+      "submitButtonPosition": "hidden",
+      "files": [],
+      "responses": [],
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "type": "string"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "",
+          "code": ""
+        }
+      ],
+      "title": "reject",
+      "_tab": "Content",
+      "skipCondition": "${state.device_check_passed === true}",
+      "tardy": true
+    },
+    "93": {
+      "id": "93",
+      "type": "lab.flow.Sequence",
+      "children": [
+        "89",
+        "91",
+        "92"
+      ],
+      "files": [],
+      "responses": [],
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "type": "string"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "",
+          "code": ""
+        }
+      ],
+      "title": "DeviceCheckBlock",
+      "_collapsed": true,
+      "_tab": "Content"
+    },
+    "94": {
+      "id": "94",
+      "type": "lab.html.Page",
+      "title": "FreeRecallWithHistory",
+      "tardy": true,
+      "scrollTop": true,
+      "width": "m",
+      "files": [],
+      "responses": [],
+      "parameters": [
+        {
+          "name": "phaseDuration",
+          "value": "30000",
+          "type": "string"
+        },
+        {
+          "name": "convertType",
+          "value": "hiragana",
+          "type": "string"
+        }
+      ],
+      "submitButtonPosition": "hidden",
+      "submitButtonText": "終了",
+      "items": [
+        {
+          "type": "text",
+          "title": "テスト",
+          "content": "制限時間：${Number(parameters.phaseDuration) / 1000}秒"
+        },
+        {
+          "type": "html",
+          "content": "<p>回答済み：<span id=\"recall-count\">0</span>語</p>\n<div id=\"recall-viewport\" tabindex=\"0\" role=\"group\" aria-label=\"回答履歴と入力位置\"\n style=\"max-height:45vh;overflow-y:auto;border:1px solid #aaa;padding:1rem;font-size:1.4rem;overflow-wrap:anywhere;\">\n <ol id=\"recall-history\" style=\"margin:0 0 .5rem;padding-left:2rem;\"></ol>\n <div style=\"padding:.5rem;background:#f3f3f3;min-height:2em;white-space:pre-wrap;\"><span id=\"recall-text\"></span><span id=\"recall-cursor\" aria-hidden=\"true\">｜</span></div>\n</div>\n<p style=\"text-align:left;\">Enterキーまたは以下のボタンを押すと，この回答を確定し、次の行が追加されます。</p>\n<div class=\"content-horizontal-center\"><button id=\"recall-save\" type=\"button\">回答を送信して次を入力する</button></div>"
+        }
+      ],
+      "messageHandlers": [
+        {
+          "title": "",
+          "message": "before:prepare",
+          "code": "// before:prepareで実行。HTML/CSSファイルへの手動設定を不要にする。\n// WanaKana本体はCDNから取得するため、通信は必要。\nconst kanaAssetKey = '__labKanaAssets402';\nif (!document.getElementById('lab-kana-component-style')) {\n  const style = document.createElement('style');\n  style.id = 'lab-kana-component-style';\n  style.textContent = '@keyframes lab-kana-cursor-blink{0%,49%{opacity:1}50%,100%{opacity:0}} #kana-cursor,#recall-cursor{display:inline-block;animation:lab-kana-cursor-blink 1s step-end infinite} #recall-history{font-size:1rem;line-height:1.35} #recall-history li{padding:.1rem 0}';\n  document.head.appendChild(style);\n}\nif (typeof window.wanakana === 'undefined') {\n  if (!window[kanaAssetKey]) {\n    window[kanaAssetKey] = new Promise((resolve, reject) => {\n      const script = document.createElement('script');\n      let settled = false;\n      const finish = error => {\n        if (settled) return;\n        settled = true;\n        clearTimeout(timer);\n        script.onload = script.onerror = null;\n        if (error) {\n          script.remove();\n          reject(error);\n        } else resolve();\n      };\n      const timer = setTimeout(() => finish(new Error('WanaKanaの読み込みがタイムアウトしました。通信環境を確認してください。')), 15000);\n      script.src = 'https://cdn.jsdelivr.net/npm/wanakana@4.0.2/umd/wanakana.min.js';\n      script.async = true;\n      script.onload = () => finish(typeof window.wanakana === 'undefined' ? new Error('WanaKanaを初期化できませんでした') : null);\n      script.onerror = () => finish(new Error('WanaKanaを読み込めません。CDNへの通信を確認してください。'));\n      document.head.appendChild(script);\n    });\n  }\n  try {\n    await window[kanaAssetKey];\n  } catch (error) {\n    delete window[kanaAssetKey]; // 次の読み込みでは再試行できるようにする。\n    throw error;\n  }\n}\n\n\n// 1つのPageを制限時間いっぱい表示し、Enterごとに回答履歴へ追加する。\n// input/contenteditableは使わない。確定後の回答は編集しない。\nconst duration = Number(this.parameters.phaseDuration);\nthis.options.timeout = Number.isFinite(duration) && duration > 0 ? duration : null;\nconst component = this;\nlet text = '';\nconst answers = [];\nlet started;\nlet ended = false;\nconst convert = (value, final) => {\n  if (typeof wanakana === 'undefined') throw new Error('WanaKanaが読み込まれていません');\n  const fn = component.parameters.convertType === 'katakana' ? wanakana.toKatakana : wanakana.toHiragana;\n  return fn(value, { IMEMode: !final });\n};\nconst saveData = () => {\n  // JSONには各回答の文字列、開始後の確定時刻、確定方法を保存する。\n  component.data.responses_json = JSON.stringify(answers);\n  component.data.response_count = answers.length;\n  component.data.response = answers.map(a => a.response).join('\\n');\n  component.data.pending_response = text;\n};\nconst paint = () => {\n  const display = document.getElementById('recall-text');\n  if (display) display.textContent = text;\n  const count = document.getElementById('recall-count');\n  if (count) count.textContent = String(answers.length);\n  const cursor = document.getElementById('recall-cursor');\n  if (cursor) {\n    cursor.style.animation = 'none';\n    void cursor.offsetWidth;\n    cursor.style.animation = '';\n  }\n  saveData();\n};\nconst append = method => {\n  if (ended) return;\n  const response = convert(text, true).trim();\n  if (!response) return; // 空Enterでは行を増やさない。\n  answers.push({ response, time_ms: Math.round(performance.now() - started), method });\n  const list = document.getElementById('recall-history');\n  if (list) {\n    const row = document.createElement('li');\n    row.textContent = response; // HTMLとして解釈させない。\n    list.appendChild(row);\n  }\n  text = '';\n  paint();\n  const viewport = document.getElementById('recall-viewport');\n  if (viewport) viewport.scrollTop = viewport.scrollHeight;\n};\nthis._recallStart = () => {\n  started = performance.now();\n  paint();\n  const area = document.getElementById('recall-viewport');\n  if (area) area.focus();\n};\nthis._recallEnd = () => {\n  if (ended) return;\n  // 最後に入力中だった単語も保存。Enter済みの回答とはmethodで区別する。\n  if (text.trim()) append(component.data.ended_on === 'timeout' ? 'timeout' : 'end');\n  ended = true;\n  saveData();\n};\nthis.options.events = this.options.events || {};\nthis.options.events['click #recall-save'] = event => {\n  event.preventDefault();\n  append('button');\n};\nthis.options.events.keydown = event => {\n  if (ended || event.ctrlKey || event.metaKey || event.altKey) return;\n  if (event.key === 'Enter') {\n    event.preventDefault();\n    if (event.repeat || event.isComposing || event.keyCode === 229) return;\n    append('enter');\n    return;\n  }\n  if (event.key === 'Backspace' || event.key === 'Delete') {\n    event.preventDefault();\n    text = Array.from(text).slice(0, -1).join('');\n    paint();\n    return;\n  }\n  if (event.isComposing || event.keyCode === 229) return;\n  if (event.key.length !== 1 || !/^[a-zA-Z '\\-,.]$/.test(event.key)) return;\n  event.preventDefault();\n  text = convert(text + event.key.toLowerCase(), false);\n  paint();\n};\nsaveData();\n\nthis.data.response_mode = 'multiple';"
+        },
+        {
+          "title": "",
+          "message": "run",
+          "code": "this._recallStart();"
+        },
+        {
+          "title": "",
+          "message": "end",
+          "code": "if (this._recallEnd) this._recallEnd();"
+        },
+        {
+          "title": "",
+          "message": "after:end",
+          "code": "delete this._recallStart;\ndelete this._recallEnd;"
+        }
+      ],
+      "notes": "phaseDuration: 自由再生テスト全体の制限時間（ミリ秒）。デフォルトは30000ms（30秒）。\nconvertType: hiragana OR katakana→平仮名か片仮名",
+      "_tab": "Parameters"
+    },
+    "root": {
+      "id": "root",
+      "title": "root",
+      "type": "lab.flow.Sequence",
+      "children": [
+        "93",
+        "94",
+        "3"
+      ],
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "type": "string"
+        }
+      ],
+      "plugins": [
+        {
+          "type": "lab.plugins.Metadata"
+        }
+      ],
+      "metadata": {
+        "title": "Japanese text input: Single / Multiple responses",
+        "description": "",
+        "repository": "https://github.com/mklab-japan/japaneseTextInputForLab.js",
+        "contributors": "Masanori Kobayashi (Yamagata University)"
+      },
+      "notes": "共通の入力操作確認の後、選択した入力コンポーネントを実行。元ファイルの著作権・MITライセンス表示はDevice checkのnotesに保持。"
+    }
+  },
+  "version": [
+    20,
+    2,
+    4
+  ],
+  "files": {
+    "files": {
+      "index.html": {
+        "content": "data:text/html,%3C%21doctype%20html%3E%0A%3Chtml%3E%0A%3Chead%3E%0A%20%20%3Cmeta%20charset%3D%22utf-8%22%3E%0A%20%20%3Ctitle%3EExperiment%3C/title%3E%0A%20%20%3C%21--%20viewport%20setup%20--%3E%0A%20%20%3Cmeta%20name%3D%22viewport%22%20content%3D%22width%3Ddevice-width%2C%20initial-scale%3D1%22%3E%0A%20%20%3C%21--%20lab.js%20library%20and%20experiment%20code%20--%3E%0A%20%20%3C%21--%20import%20wanakana.js%20--%3E%0A%20%20%0A%20%20%24%7B%20header%20%7D%0A%3C/head%3E%0A%3Cbody%3E%0A%20%20%3C%21--%20If%20you%27d%20rather%20have%20a%20container%20with%20a%20fixed%20width%0A%20%20%20%20%20%20%20and%20variable%20height%2C%20try%20removing%20the%20fullscreen%20class%20below%20--%3E%0A%20%20%3Cdiv%20class%3D%22container%20fullscreen%22%20data-labjs-section%3D%22main%22%3E%0A%20%20%20%20%3Cmain%20class%3D%22content-vertical-center%20content-horizontal-center%22%3E%0A%20%20%20%20%20%20%3Cdiv%3E%0A%20%20%20%20%20%20%20%20%3Ch2%3ELoading%20Experiment%3C/h2%3E%0A%20%20%20%20%20%20%20%20%3Cp%3EThe%20experiment%20is%20loading%20and%20should%20start%20in%20a%20few%20seconds%3C/p%3E%0A%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%3C/main%3E%0A%20%20%3C/div%3E%0A%3C/body%3E%0A%3C/html%3E",
+        "source": "library"
+      },
+      "style.css": {
+        "content": "data:text/css,",
+        "source": "library"
+      }
+    },
+    "bundledFiles": {
+      "lib/lab.js": {
+        "type": "application/javascript"
+      },
+      "lib/lab.js.map": {
+        "type": "text/plain"
+      },
+      "lib/lab.fallback.js": {
+        "type": "application/javascript"
+      },
+      "lib/lab.legacy.js": {
+        "type": "application/javascript"
+      },
+      "lib/lab.legacy.js.map": {
+        "type": "text/plain"
+      },
+      "lib/lab.css": {
+        "type": "text/css"
+      },
+      "lib/loading.svg": {
+        "type": "image/svg+xml"
+      }
+    }
+  }
+}
